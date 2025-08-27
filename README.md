@@ -1,3 +1,34 @@
+# Star-Vector
+
+```bash
+git clone git@github.com:joanrod/star-vector.git third_party/star-vector
+cd third_party/star-vector
+
+with-proxy conda create -n star_vector -y python=3.11
+conda activate star_vector
+which python pip
+
+with-proxy pip install uv
+with-proxy uv pip install -e ".[train]"
+with-proxy uv pip install --no-cache-dir flash-attn==2.7.3 --no-build-isolation
+with-proxy uv pip install pyarrow==20.0.0
+with-proxy uv pip install 'llamafactory[torch,metrics,deepspeed,vllm]==0.9.3'
+
+
+WANDB_MODE=disabled HF_HUB_DISABLE_XET=1 with-proxy python starvector/validation/validate.py \
+config=configs/generation/hf/starvector-1b/im2svg.yaml \
+dataset.dataset_name=starvector/svg-fonts \
+dataset.batch_size=100 \
+dataset.num_samples=100 \
+generation_params.max_length=780
+
+
+WANDB_MODE=disabled HF_HUB_DISABLE_XET=1 with-proxy python starvector/validation/validate.py \
+config=configs/generation/vllm/starvector-1b/im2svg.yaml \
+dataset.dataset_name=starvector/svg-stack
+```
+
+
 <div align="center">
   <h1>💫 StarVector: Generating Scalable Vector Graphics Code from Images and Text</h1>
   <img src="assets/starvector-xyz.png" alt="starvector" style="width: 800px; display: block; margin-left: auto; margin-right: auto;"/>
@@ -40,7 +71,7 @@
   - Check out our website for more information [[Link](https://starvector.github.io/)]
   - StarVector models are now available on HuggingFace! [[Link](https://huggingface.co/starvector/starvector-1b-im2svg)] [[Link](https://huggingface.co/starvector/starvector-8b-im2svg)]
   - SVGBench and SVG-Stack datasets are now available on HuggingFace Datasets! [[Link](https://huggingface.co/datasets/starvector/svg-bench)] [[Link](https://huggingface.co/datasets/starvector/svg-stack)]
-  
+
 ## 🚀 Introduction
 StarVector is a multimodal vision-language model for Scalable Vector Graphics (SVG) generation. It can be used to perform image2SVG and text2SVG generation. We pose image generation as a code generation task, using the power of multimodal VLMs
 
@@ -170,7 +201,7 @@ We provide [Hugging Face 🤗 model checkpoints](https://huggingface.co/collecti
 ## Datasets - SVG-Bench
 SVG-Bench is a benchmark for evaluating SVG generation models. It contains 10 datasets, and 3 tasks: Image-to-SVG, Text-to-SVG, and Diagram-to-SVG.
 
-See our [Huggingface 🤗 Dataset Collection](https://huggingface.co/collections/starvector/starvector-svg-datasets-67811204a76475be4dd66d09)  
+See our [Huggingface 🤗 Dataset Collection](https://huggingface.co/collections/starvector/starvector-svg-datasets-67811204a76475be4dd66d09)
 
 | Dataset         |  Train  | Val   | Test | Token Length     | SVG Primitives | Annotation     |
 |-----------------|--------|-------|------|------------------|----------------|----------------|
@@ -183,7 +214,7 @@ See our [Huggingface 🤗 Dataset Collection](https://huggingface.co/collections
 | SVG-Emoji_sim (🤗 [Link](https://huggingface.co/datasets/starvector/svg-emoji-simple)) | 580    | 57    | 96   | 2,448 ± 1,026    | Vector Path    | -          |
 | SVG-Icons (🤗 [Link](https://huggingface.co/datasets/starvector/svg-icons)) | 80.4k  | 6.2k  | 2.4k | 2,449 ± 1,543    | Vector path    | -              |
 | SVG-Icons_sim (🤗 [Link](https://huggingface.co/datasets/starvector/svg-icons-simple)) | 80,435 | 2,836 | 1,277| 2,005 ± 824      | Vector path    | -              |
-| SVG-FIGR (🤗 [Link](https://huggingface.co/datasets/starvector/FIGR-SVG)) | 270k   | 27k   | 3k   | 5,342 ± 2,345    | Vector path    | Class, Caption | 
+| SVG-FIGR (🤗 [Link](https://huggingface.co/datasets/starvector/FIGR-SVG)) | 270k   | 27k   | 3k   | 5,342 ± 2,345    | Vector path    | Class, Caption |
 
 
 >We offer a summary of statistics about the datasets used in our training and evaluation experiments. This datasets are included in SVG-Bench. The subscript _sim_ stands for the simplified version of the dataset, as required by some baselines.
@@ -271,17 +302,17 @@ torchrun \
   config=configs/models/starvector-8b/im2svg-{fonts,icons,emoji}.yaml
 ```
 
-We also provide shell scripts in `scripts/train/*` 
+We also provide shell scripts in `scripts/train/*`
 
 ## Validation on SVG Benchmarks (⭐ SVG-Bench)
 
-We validate StarVector on ⭐ SVG-Bench Benchmark. We provide the SVGValidator class that allows you to run StarVector using **1) the HuggingFace generation backend** or **2) the VLLM backend**. The later is substantially faster thanks to the use of Paged Attention. 
+We validate StarVector on ⭐ SVG-Bench Benchmark. We provide the SVGValidator class that allows you to run StarVector using **1) the HuggingFace generation backend** or **2) the VLLM backend**. The later is substantially faster thanks to the use of Paged Attention.
 
 ### HuggingFace Generation Backend
 Let's start with the evaluation for StarVector-1B and StarVector-8B on SVG-Stack, using the HuggingFace generation backend (StarVectorHFAPIValidator). To override the input arguments, you can add cli args following the yaml file structure.
 
 ```bash
-# StarVector-1B on SVG-Stack, using the HuggingFace backend 
+# StarVector-1B on SVG-Stack, using the HuggingFace backend
 python starvector/validation/validate.py \
 config=configs/generation/hf/starvector-1b/im2svg.yaml \
 dataset.dataset_name=starvector/svg-stack
@@ -394,13 +425,13 @@ python -m starvector.serve.vllm_api_gradio.model_worker --host 0.0.0.0 --control
 ## Citation
 ```
 @misc{rodriguez2024starvector,
-      title={StarVector: Generating Scalable Vector Graphics Code from Images and Text}, 
+      title={StarVector: Generating Scalable Vector Graphics Code from Images and Text},
       author={Juan A. Rodriguez and Abhay Puri and Shubham Agarwal and Issam H. Laradji and Pau Rodriguez and Sai Rajeswar and David Vazquez and Christopher Pal and Marco Pedersoli},
       year={2024},
       eprint={2312.11556},
       archivePrefix={arXiv},
       primaryClass={cs.CV},
-      url={https://arxiv.org/abs/2312.11556}, 
+      url={https://arxiv.org/abs/2312.11556},
 }
 ```
 

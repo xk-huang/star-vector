@@ -34,9 +34,16 @@ def main(config):
     validator_class = get_validator(config.model.generation_engine, config)
     validator = validator_class(config)
     
-    print(f"Config: {config}")
-    print(f"Saving in {validator.out_dir}")
-    validator.validate()
+    only_metrics = getattr(config, "only_metrics", None)
+    print(f"Only metrics: {only_metrics}")
+    if only_metrics is None:
+        print(f"Config: {config}")
+        print(f"Saving in {validator.out_dir}")
+        validator.validate()
+    else:
+        print("Only compute metrics")
+        validator.calculate_and_save_metrics()
+
 
 if __name__ == "__main__":
     cli_conf = OmegaConf.from_cli()

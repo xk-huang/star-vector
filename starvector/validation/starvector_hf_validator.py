@@ -1,7 +1,7 @@
 # hf https://huggingface.co/docs/transformers/main_classes/text_generation
 from starvector.validation.svg_validator_base import SVGValidator, register_validator
 import torch
-from transformers import AutoProcessor, AutoModelForCausalLM
+from transformers import AutoProcessor, AutoModelForCausalLM, AutoTokenizer
 from torch.utils.data import Dataset, DataLoader
 from datasets import load_dataset
 from starvector.data.util import rasterize_svg
@@ -58,7 +58,10 @@ class StarVectorHFSVGValidator(SVGValidator):
             self.model = AutoModelForCausalLM.from_pretrained(config.model.name, trust_remote_code=True, torch_dtype=self.torch_dtype).to(config.run.device)
         
         self.tokenizer = self.model.model.svg_transformer.tokenizer
+        self.processor = self.model.model.processor
         self.svg_end_token_id = self.tokenizer.encode("</svg>")[0] 
+
+        self.get_dataloader()
 
     def get_dataloader(self):
         self.dataset = SVGValDataset(self.config.dataset.dataset_name, self.config.dataset.config_name, self.config.dataset.split, self.config.dataset.im_size, self.config.dataset.num_samples, self.processor)

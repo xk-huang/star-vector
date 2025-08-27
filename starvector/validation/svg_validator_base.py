@@ -36,9 +36,9 @@ class SVGValidator(ABC):
             chkp_dir = self.get_checkpoint_dir(config.model.from_checkpoint)
             config.model.from_checkpoint = chkp_dir
             self.resume_from_checkpoint = chkp_dir
-            self.out_dir = chkp_dir + '/' + config.run.out_dir + '/' + config.model.generation_engine + '_' + config.dataset.dataset_name + '_' + date_time
+            self.out_dir = chkp_dir + '/' + config.run.out_dir + '/' + config.model.generation_engine + '_' + config.dataset.dataset_name # + '_' + date_time
         else:
-            self.out_dir = config.run.out_dir + '/' + config.model.generation_engine + '_' + config.model.name + '_' + config.dataset.dataset_name + '_' + date_time
+            self.out_dir = config.run.out_dir + '/' + config.model.generation_engine + '_' + config.model.name + '_' + config.dataset.dataset_name # + '_' + date_time
         os.makedirs(self.out_dir, exist_ok=True)
         self.model_name = config.model.name
         # Save config to yaml file
@@ -321,6 +321,7 @@ class SVGValidator(ABC):
     def calculate_and_save_metrics(self):
         """Calculate and save metrics"""
         batch_results = self.preprocess_results()
+        breakpoint()
         avg_results, all_results = self.metrics.calculate_metrics(batch_results)
         
         out_path_results = os.path.join(self.out_dir, 'results')
